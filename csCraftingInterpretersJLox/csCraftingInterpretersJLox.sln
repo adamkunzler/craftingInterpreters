@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftingInterpreters.JLox", "CraftingInterpreters.JLox\CraftingInterpreters.JLox.csproj", "{E765F298-83D6-4263-8E4B-23214A37C9E0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CraftingInterpreters.JLox2", "CraftingInterpreters.JLox2\CraftingInterpreters.JLox2.csproj", "{6EB95B50-691B-4042-8920-FEACC26F292B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E765F298-83D6-4263-8E4B-23214A37C9E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E765F298-83D6-4263-8E4B-23214A37C9E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E765F298-83D6-4263-8E4B-23214A37C9E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E765F298-83D6-4263-8E4B-23214A37C9E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EB95B50-691B-4042-8920-FEACC26F292B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EB95B50-691B-4042-8920-FEACC26F292B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EB95B50-691B-4042-8920-FEACC26F292B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EB95B50-691B-4042-8920-FEACC26F292B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
