@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CraftingInterpreters.JLox2
+﻿namespace CraftingInterpreters.JLox2
 {
     public class Token
     {
-        readonly TokenType type;
-        readonly string lexeme;
-        readonly object literal;
-        readonly int line;
+        public TokenType type { get; }
+        public string lexeme { get; }
+        public object literal { get; }
+        public int line { get; }
 
         public Token(
             TokenType type,

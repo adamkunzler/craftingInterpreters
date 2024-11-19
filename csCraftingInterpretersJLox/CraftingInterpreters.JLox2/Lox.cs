@@ -1,9 +1,8 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 
 namespace CraftingInterpreters.JLox2
 {
-    internal class Lox
+    public class Lox
     {
         public static bool hadError = false;
 

@@ -8,7 +8,7 @@
         COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
 
         // One or Two Character Tokens
-        BANK, BANG_EQUAL, EQUAL, EQUAL_EQUAL,
+        BANG, BANG_EQUAL, EQUAL, EQUAL_EQUAL,
 
         GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
 
