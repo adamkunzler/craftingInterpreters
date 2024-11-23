@@ -8,30 +8,31 @@ namespace CraftingInterpreters.JLox2
 
         static void Main(string[] args)
         {
-            var expression = new Expr.Binary(
-                new Expr.Unary(
-                    new Token(TokenType.MINUS, "-", null, 1),
-                    new Expr.Literal(123)
-                ),
-                new Token(TokenType.STAR, "*", null, 1),
-                new Expr.Grouping(
-                    new Expr.Literal(45.67))
-                );
+            // test AstPrinter
+            //var expression = new Expr.Binary(
+            //    new Expr.Unary(
+            //        new Token(TokenType.MINUS, "-", null, 1),
+            //        new Expr.Literal(123)
+            //    ),
+            //    new Token(TokenType.STAR, "*", null, 1),
+            //    new Expr.Grouping(
+            //        new Expr.Literal(45.67))
+            //    );
 
-            Console.WriteLine(new AstPrinter().print(expression));
-            //if (args.Length > 1)
-            //{
-            //    Console.WriteLine("Usage: jlox [script]");
-            //    return;
-            //}
-            //else if (args.Length == 1)
-            //{
-            //    runFile(args[0]);
-            //}
-            //else
-            //{
-            //    runPrompt();
-            //}
+            //Console.WriteLine(new AstPrinter().print(expression));
+            if (args.Length > 1)
+            {
+                Console.WriteLine("Usage: jlox [script]");
+                return;
+            }
+            else if (args.Length == 1)
+            {
+                runFile(args[0]);
+            }
+            else
+            {
+                runPrompt();
+            }
         }
 
         private static void runFile(string path)
