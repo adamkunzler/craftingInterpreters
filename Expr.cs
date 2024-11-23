@@ -2,21 +2,36 @@ namespace CraftingInterpreters.JLox2
 {
 	public abstract class Expr
 	{
-		static class Binary : Expr
+		public abstract R accept<R>(Visitor<R> visitor);
+
+		public interface Visitor<R>
+		{
+			R visitBinaryExpr(Binary expr);
+			R visitGroupingExpr(Grouping expr);
+			R visitLiteralExpr(Literal expr);
+			R visitUnaryExpr(Unary expr);
+		}
+
+		public class Binary : Expr
 		{
 			public Expr left { get; }
-			public Token operator { get; }
+			public Token operatr { get; }
 			public Expr right { get; }
 
-			public Binary(Expr left, Token operator, Expr right)
+			public Binary(Expr left, Token operatr, Expr right)
 			{
 				this.left = left;
-				this.operator = operator;
+				this.operatr = operatr;
 				this.right = right;
+			}
+
+			public override R accept<R>(Visitor<R> visitor)
+			{
+				return visitor.visitBinaryExpr(this);
 			}
 		}
 
-		static class Grouping : Expr
+		public class Grouping : Expr
 		{
 			public Expr expression { get; }
 
@@ -24,9 +39,14 @@ namespace CraftingInterpreters.JLox2
 			{
 				this.expression = expression;
 			}
+
+			public override R accept<R>(Visitor<R> visitor)
+			{
+				return visitor.visitGroupingExpr(this);
+			}
 		}
 
-		static class Literal : Expr
+		public class Literal : Expr
 		{
 			public Object value { get; }
 
@@ -34,17 +54,27 @@ namespace CraftingInterpreters.JLox2
 			{
 				this.value = value;
 			}
+
+			public override R accept<R>(Visitor<R> visitor)
+			{
+				return visitor.visitLiteralExpr(this);
+			}
 		}
 
-		static class Unary : Expr
+		public class Unary : Expr
 		{
-			public Token operator { get; }
+			public Token operatr { get; }
 			public Expr right { get; }
 
-			public Unary(Token operator, Expr right)
+			public Unary(Token operatr, Expr right)
 			{
-				this.operator = operator;
+				this.operatr = operatr;
 				this.right = right;
+			}
+
+			public override R accept<R>(Visitor<R> visitor)
+			{
+				return visitor.visitUnaryExpr(this);
 			}
 		}
 
