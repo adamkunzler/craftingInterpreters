@@ -60,12 +60,18 @@ namespace CraftingInterpreters.JLox2
         {
             var scanner = new Scanner(source);
             var tokens = scanner.scanTokens();
+            var parser = new Parser(tokens);
+            var expression = parser.parse();
 
-            // for now, just print the tokens
-            foreach (var t in tokens)
-            {
-                Console.WriteLine(t);
-            }
+            if (hadError) return;
+
+            Console.WriteLine(new AstPrinter().print(expression));
+
+            //// for now, just print the tokens
+            //foreach (var t in tokens)
+            //{
+            //    Console.WriteLine(t);
+            //}
         }
 
         public static void error(int line, string message)
@@ -77,6 +83,18 @@ namespace CraftingInterpreters.JLox2
         {
             Console.Error.WriteLine($"[line {line}] Error {where}: {message}");
             hadError = true;
+        }
+
+        public static void error(Token token, string message)
+        {
+            if(token.type == TokenType.EOF)
+            {
+                report(token.line, " at end", message);
+            }
+            else
+            {
+                report(token.line, " at '" + token.lexeme + "'", message);
+            }
         }
     }
 }
