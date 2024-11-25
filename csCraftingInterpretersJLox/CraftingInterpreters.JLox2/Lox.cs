@@ -46,7 +46,7 @@ namespace CraftingInterpreters.JLox2
         {
             while (true)
             {
-                Console.WriteLine("> ");
+                Console.Write("> ");
 
                 var line = Console.ReadLine();
                 if (line == null) break;
