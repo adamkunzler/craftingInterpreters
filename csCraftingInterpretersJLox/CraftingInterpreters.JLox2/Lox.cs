@@ -5,6 +5,9 @@ namespace CraftingInterpreters.JLox2
     public class Lox
     {
         public static bool hadError = false;
+        public static bool hadRuntimeError = false;
+
+        private static Interpreter interpreter = new Interpreter();
 
         static void Main(string[] args)
         {
@@ -40,6 +43,7 @@ namespace CraftingInterpreters.JLox2
             var bytes = File.ReadAllBytes(path);
             run(Encoding.Default.GetString(bytes));
             if (hadError) return;
+            if(hadRuntimeError) return;
         }
 
         private static void runPrompt()
@@ -65,7 +69,10 @@ namespace CraftingInterpreters.JLox2
 
             if (hadError) return;
 
+            interpreter.interpret(expression);
+
             Console.WriteLine(new AstPrinter().print(expression));
+
 
             //// for now, just print the tokens
             //foreach (var t in tokens)
@@ -95,6 +102,12 @@ namespace CraftingInterpreters.JLox2
             {
                 report(token.line, " at '" + token.lexeme + "'", message);
             }
+        }
+
+        public static void runtimeError(RuntimeError error)
+        {
+            Console.WriteLine(error.Message + "\n[line " + error.token.line + "]");
+            hadRuntimeError = true;
         }
     }
 }
