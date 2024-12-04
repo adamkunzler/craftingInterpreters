@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,21 +20,111 @@ namespace CraftingInterpreters.JLox2
             this.tokens = tokens;
         }
 
-        public Expr parse()
+        public List<Stmt> parse()
         {
-            try
-            {
-                return expression();
+            var statements = new List<Stmt>();
+            while (!isAtEnd())
+            {                
+                try
+                {
+                    statements.Add(declaration());
+                }
+                catch (ParseError error)
+                {
+                    return null;
+                }
             }
-            catch(ParseError error)
-            {
-                return null;
-            }
+
+            return statements;
         }
 
         private Expr expression()
         {
-            return equality();
+            return assignment();
+        }
+
+        private Stmt declaration()
+        {
+            try
+            {
+                if (match(TokenType.VAR)) return varDeclaration();
+                return statement();
+            }
+            catch(ParseError error)
+            {
+                synchronize();
+                return null;
+            }
+        }
+
+        private Stmt statement()
+        {
+            if (match(TokenType.PRINT)) return printStatement();
+            if (match(TokenType.LEFT_BRACE)) return new Stmt.Block(block());
+
+            return expressionStatement();
+        }
+
+        private Stmt printStatement()
+        {
+            var value = expression();
+            consume(TokenType.SEMICOLON, "Expect ';' after value.");
+            return new Stmt.Print(value);
+        }
+
+        private Stmt varDeclaration()
+        {
+            var name = consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+            Expr initializer = null;
+            if (match(TokenType.EQUAL))
+            {
+                initializer = expression();
+            }
+
+            consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+            return new Stmt.Var(name, initializer);
+        }
+
+        private Stmt expressionStatement()
+        {
+            var expr = expression();
+            consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+            return new Stmt.Expression(expr);
+        }
+
+        private List<Stmt> block()
+        {
+            var statements = new List<Stmt>();
+
+            while(!check(TokenType.RIGHT_BRACE) && !isAtEnd())
+            {
+                statements.Add(declaration());
+            }
+
+            consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+            return statements;
+        }
+
+        private Expr assignment()
+        {
+            var expr = equality();
+
+            if (match(TokenType.EQUAL))
+            {
+                var equals = previous();
+                var value = assignment();
+
+                if(expr.GetType() == typeof(Expr.Variable))
+                {
+                    var name = ((Expr.Variable)expr).name;
+                    return new Expr.Assign(name, value);
+                }
+
+                error(equals, "Invalid assignment target.");
+            }
+
+            return expr;
         }
 
         private Expr equality()
@@ -112,6 +203,11 @@ namespace CraftingInterpreters.JLox2
             if(match(TokenType.NUMBER, TokenType.STRING))
             {
                 return new Expr.Literal(previous().literal);
+            }
+
+            if (match(TokenType.IDENTIFIER))
+            {
+                return new Expr.Variable(previous());
             }
 
             if (match(TokenType.LEFT_PAREN))

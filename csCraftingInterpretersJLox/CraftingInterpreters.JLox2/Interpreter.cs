@@ -6,14 +6,18 @@ using System.Threading.Tasks;
 
 namespace CraftingInterpreters.JLox2
 {
-    public class Interpreter : Expr.Visitor<object>
+    public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
-        public void interpret(Expr expression)
+        private Environment environment = new Environment();
+
+        public void interpret(List<Stmt> statements)
         {
             try
             {
-                var value = evaluate(expression);
-                Console.WriteLine(stringify(value));
+                foreach (var statement in statements) 
+                {
+                    execute(statement);
+                }
             }
             catch(RuntimeError error)
             {
@@ -41,6 +45,11 @@ namespace CraftingInterpreters.JLox2
 
             // unreachable
             return null;
+        }
+
+        public object visitVariableExpr(Expr.Variable expr)
+        {
+            return environment.get(expr.name);
         }
 
         public object visitBinaryExpr(Expr.Binary expr)
@@ -97,9 +106,71 @@ namespace CraftingInterpreters.JLox2
             return evaluate(expr.expression);
         }
 
+        public object visitExpressionStmt(Stmt.Expression stmt)
+        {
+            evaluate(stmt.expression);
+            return null; // return type should be void, but ran into issues
+        }
+
+        public object visitPrintStmt(Stmt.Print stmt)
+        {
+            var val = evaluate(stmt.expression);
+            Console.WriteLine(stringify(val));
+            return null; // return type should be void, but ran into issues
+        }
+
+        public object visitVarStmt(Stmt.Var stmt)
+        {
+            object value = null;
+            if(stmt.initializer != null)
+            {
+                value = evaluate(stmt.initializer);
+            }
+
+            environment.define(stmt.name.lexeme, value);
+
+            return null; // return type should be void, but ran into issues
+        }
+
+        public object visitAssignExpr(Expr.Assign expr)
+        {
+            var value = evaluate(expr.value);
+            environment.assign(expr.name, value);
+            return value;
+        }
+
         private object evaluate(Expr expr)
         {
             return expr.accept(this);
+        }
+
+        private void execute(Stmt stmt)
+        {
+            stmt.accept(this);
+        }
+
+        public object visitBlockStmt(Stmt.Block stmt)
+        {
+            executeBlock(stmt.statements, new Environment(environment));
+            return null; // return type should be void, but ran into issues
+        }
+
+        private void executeBlock(List<Stmt> statements, Environment environment)
+        {
+            var previous = this.environment;
+            try
+            {
+                this.environment = environment;
+
+                foreach(var statement in statements)
+                {
+                    execute(statement);
+                }
+            }
+            finally
+            {
+                this.environment = previous;
+            }
         }
 
         private bool isTruthy(object obj)

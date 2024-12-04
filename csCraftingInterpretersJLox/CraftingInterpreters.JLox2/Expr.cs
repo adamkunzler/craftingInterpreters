@@ -6,10 +6,29 @@
 
         public interface Visitor<R>
         {
+            R visitAssignExpr(Assign expr);
             R visitBinaryExpr(Binary expr);
             R visitGroupingExpr(Grouping expr);
             R visitLiteralExpr(Literal expr);
+            R visitVariableExpr(Variable expr);
             R visitUnaryExpr(Unary expr);
+        }
+
+        public class Assign : Expr
+        {
+            public Token name { get; }
+            public Expr value { get; }
+
+            public Assign(Token name, Expr value)
+            {
+                this.name = name;
+                this.value = value;
+            }
+
+            public override R accept<R>(Visitor<R> visitor)
+            {
+                return visitor.visitAssignExpr(this);
+            }
         }
 
         public class Binary : Expr
@@ -58,6 +77,21 @@
             public override R accept<R>(Visitor<R> visitor)
             {
                 return visitor.visitLiteralExpr(this);
+            }
+        }
+
+        public class Variable : Expr
+        {
+            public Token name { get; }
+
+            public Variable(Token name)
+            {
+                this.name = name;
+            }
+
+            public override R accept<R>(Visitor<R> visitor)
+            {
+                return visitor.visitVariableExpr(this);
             }
         }
 

@@ -65,13 +65,13 @@ namespace CraftingInterpreters.JLox2
             var scanner = new Scanner(source);
             var tokens = scanner.scanTokens();
             var parser = new Parser(tokens);
-            var expression = parser.parse();
+            var statements = parser.parse();
 
             if (hadError) return;
 
-            interpreter.interpret(expression);
+            interpreter.interpret(statements);
 
-            Console.WriteLine(new AstPrinter().print(expression));
+            //Console.WriteLine(new AstPrinter().print(expression));
 
 
             //// for now, just print the tokens

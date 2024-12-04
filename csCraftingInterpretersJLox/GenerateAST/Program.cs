@@ -14,10 +14,20 @@
 
             defineAst(outputDir, "Expr", new List<string>
             {
+                "Assign     : Token name, Expr value",
                 "Binary     : Expr left, Token operatr, Expr right",
                 "Grouping   : Expr expression",
                 "Literal    : object value",
+                "Variable   : Token name",
                 "Unary      : Token operatr, Expr right"     
+            });
+
+            defineAst(outputDir, "Stmt", new List<string>
+            {
+                "Block      : List<Stmt> statements",
+                "Expression : Expr expression",
+                "Var        : Token name, Expr initializer",
+                "Print      : Expr expression"
             });
         }
 
