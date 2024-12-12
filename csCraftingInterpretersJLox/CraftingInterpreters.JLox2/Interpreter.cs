@@ -177,6 +177,14 @@
             return null; // return type should be void, but ran into issues
         }
 
+        public object visitFunctionStmt(Stmt.Function stmt)
+        {
+            var function = new LoxFunction(stmt, environment);
+            environment.define(stmt.name.lexeme, function);
+
+            return null; // return type should be void, but ran into issues
+        }
+
         public object visitIfStmt(Stmt.If stmt)
         {
             if (isTruthy(evaluate(stmt.condition)))
@@ -196,6 +204,14 @@
             var val = evaluate(stmt.expression);
             Console.WriteLine(stringify(val));
             return null; // return type should be void, but ran into issues
+        }
+
+        public object visitReturnStatement(Stmt.Return stmt)
+        {
+            object value = null;
+            if(stmt.value != null) value = evaluate(stmt.value);
+
+            throw new Return(value);
         }
 
         public object visitVarStmt(Stmt.Var stmt)
@@ -244,7 +260,7 @@
             return null; // return type should be void, but ran into issues
         }
 
-        private void executeBlock(List<Stmt> statements, Environment environment)
+        public void executeBlock(List<Stmt> statements, Environment environment)
         {
             var previous = this.environment;
             try
@@ -303,6 +319,11 @@
             }
 
             return obj.ToString();
+        }
+
+        public object visitReturnStmt(Stmt.Return stmt)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -8,9 +8,11 @@ namespace CraftingInterpreters.JLox2
 		{
 			R visitBlockStmt(Block stmt);
 			R visitExpressionStmt(Expression stmt);
+			R visitFunctionStmt(Function stmt);
 			R visitVarStmt(Var stmt);
 			R visitIfStmt(If stmt);
 			R visitPrintStmt(Print stmt);
+			R visitReturnStmt(Return stmt);
 			R visitWhileStmt(While stmt);
 		}
 
@@ -41,6 +43,25 @@ namespace CraftingInterpreters.JLox2
 			public override R accept<R>(Visitor<R> visitor)
 			{
 				return visitor.visitExpressionStmt(this);
+			}
+		}
+
+		public class Function : Stmt
+		{
+			public Token name { get; }
+			public List<Token> parameters { get; }
+			public List<Stmt> body { get; }
+
+			public Function(Token name, List<Token> parameters, List<Stmt> body)
+			{
+				this.name = name;
+				this.parameters = parameters;
+				this.body = body;
+			}
+
+			public override R accept<R>(Visitor<R> visitor)
+			{
+				return visitor.visitFunctionStmt(this);
 			}
 		}
 
@@ -92,6 +113,23 @@ namespace CraftingInterpreters.JLox2
 			public override R accept<R>(Visitor<R> visitor)
 			{
 				return visitor.visitPrintStmt(this);
+			}
+		}
+
+		public class Return : Stmt
+		{
+			public Token keyword { get; }
+			public Expr value { get; }
+
+			public Return(Token keyword, Expr value)
+			{
+				this.keyword = keyword;
+				this.value = value;
+			}
+
+			public override R accept<R>(Visitor<R> visitor)
+			{
+				return visitor.visitReturnStmt(this);
 			}
 		}
 
