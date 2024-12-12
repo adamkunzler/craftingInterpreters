@@ -16,9 +16,11 @@
             {
                 "Assign     : Token name, Expr value",
                 "Binary     : Expr left, Token operatr, Expr right",
+                "Call       : Expr callee, Token paren, List<Expr> arguments",
                 "Grouping   : Expr expression",
                 "Literal    : object value",
                 "Variable   : Token name",
+                "Logical    : Expr left, Token operatr, Expr right",
                 "Unary      : Token operatr, Expr right"     
             });
 
@@ -27,7 +29,9 @@
                 "Block      : List<Stmt> statements",
                 "Expression : Expr expression",
                 "Var        : Token name, Expr initializer",
-                "Print      : Expr expression"
+                "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
+                "Print      : Expr expression",
+                "While      : Expr condition, Stmt body"
             });
         }
 

@@ -1,25 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CraftingInterpreters.JLox2
+﻿namespace CraftingInterpreters.JLox2
 {
+    public class ClockLoxCallable : LoxCallable
+    {
+        public int arity()
+        { return 0; }
+
+        public object call(Interpreter interpreter, List<object> arguments)
+        {
+            return (double)DateTime.Now.Millisecond / 1000.0;
+        }
+
+        public override string ToString()
+        {
+            return "<native fn>";
+        }
+    }
+
     public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
-        private Environment environment = new Environment();
+        public Environment globals = new Environment();
+        private Environment environment;
+
+        public Interpreter()
+        {
+            this.environment = globals;
+
+            globals.define("clock", new ClockLoxCallable());
+        }
 
         public void interpret(List<Stmt> statements)
         {
             try
             {
-                foreach (var statement in statements) 
+                foreach (var statement in statements)
                 {
                     execute(statement);
                 }
             }
-            catch(RuntimeError error)
+            catch (RuntimeError error)
             {
                 Lox.runtimeError(error);
             }
@@ -30,7 +48,23 @@ namespace CraftingInterpreters.JLox2
             return expr.value;
         }
 
-        public object visitUnaryExpr(Expr.Unary expr) 
+        public object visitLogicalExpr(Expr.Logical expr)
+        {
+            var left = evaluate(expr.left);
+
+            if (expr.operatr.type == TokenType.OR)
+            {
+                if (isTruthy(left)) return left;
+            }
+            else
+            {
+                if (!isTruthy(left)) return left;
+            }
+
+            return evaluate(expr.right);
+        }
+
+        public object visitUnaryExpr(Expr.Unary expr)
         {
             var right = evaluate(expr.right);
 
@@ -38,6 +72,7 @@ namespace CraftingInterpreters.JLox2
             {
                 case TokenType.BANG:
                     return !isTruthy(right);
+
                 case TokenType.MINUS:
                     checkNumberOperand(expr.operatr, right);
                     return -(double)right;
@@ -62,22 +97,27 @@ namespace CraftingInterpreters.JLox2
                 case TokenType.GREATER:
                     checkNumberOperands(expr.operatr, left, right);
                     return (double)left > (double)right;
+
                 case TokenType.GREATER_EQUAL:
                     checkNumberOperands(expr.operatr, left, right);
                     return (double)left >= (double)right;
+
                 case TokenType.LESS:
                     checkNumberOperands(expr.operatr, left, right);
                     return (double)left < (double)right;
+
                 case TokenType.LESS_EQUAL:
                     checkNumberOperands(expr.operatr, left, right);
                     return (double)left <= (double)right;
+
                 case TokenType.BANG_EQUAL: return !isEqual(left, right);
                 case TokenType.EQUAL_EQUAL: return isEqual(left, right);
                 case TokenType.MINUS:
                     checkNumberOperands(expr.operatr, left, right);
                     return (double)left - (double)right;
+
                 case TokenType.PLUS:
-                    if(left.GetType() == typeof(double) && right.GetType() == typeof(double))
+                    if (left.GetType() == typeof(double) && right.GetType() == typeof(double))
                     {
                         return (double)left + (double)right;
                     }
@@ -87,18 +127,43 @@ namespace CraftingInterpreters.JLox2
                     }
 
                     throw new RuntimeError(expr.operatr, "Operands must be two numbers or two strings");
-                    
+
                 case TokenType.SLASH:
                     checkNumberOperands(expr.operatr, left, right);
                     return (double)left / (double)right;
+
                 case TokenType.STAR:
                     checkNumberOperands(expr.operatr, left, right);
                     return (double)left * (double)right;
-                
             }
 
             // unreachable
             return null;
+        }
+
+        public object visitCallExpr(Expr.Call expr)
+        {
+            var callee = evaluate(expr.callee);
+
+            var arguments = new List<object>();
+            foreach (var argument in expr.arguments)
+            {
+                arguments.Add(evaluate(argument));
+            }
+
+            if (callee.GetType() != typeof(LoxCallable))
+            {
+                throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+            }
+
+            var function = (LoxCallable)callee;
+
+            if (arguments.Count != function.arity())
+            {
+                throw new RuntimeError(expr.paren, $"Expected {function.arity()} arguments but got {arguments.Count}.");
+            }
+
+            return function.call(this, arguments);
         }
 
         public object visitGroupingExpr(Expr.Grouping expr)
@@ -112,6 +177,20 @@ namespace CraftingInterpreters.JLox2
             return null; // return type should be void, but ran into issues
         }
 
+        public object visitIfStmt(Stmt.If stmt)
+        {
+            if (isTruthy(evaluate(stmt.condition)))
+            {
+                execute(stmt.thenBranch);
+            }
+            else if (stmt.elseBranch != null)
+            {
+                execute(stmt.elseBranch);
+            }
+
+            return null; // return type should be void, but ran into issues
+        }
+
         public object visitPrintStmt(Stmt.Print stmt)
         {
             var val = evaluate(stmt.expression);
@@ -122,12 +201,22 @@ namespace CraftingInterpreters.JLox2
         public object visitVarStmt(Stmt.Var stmt)
         {
             object value = null;
-            if(stmt.initializer != null)
+            if (stmt.initializer != null)
             {
                 value = evaluate(stmt.initializer);
             }
 
             environment.define(stmt.name.lexeme, value);
+
+            return null; // return type should be void, but ran into issues
+        }
+
+        public object visitWhileStmt(Stmt.While stmt)
+        {
+            while (isTruthy(evaluate(stmt.condition)))
+            {
+                execute(stmt.body);
+            }
 
             return null; // return type should be void, but ran into issues
         }
@@ -162,7 +251,7 @@ namespace CraftingInterpreters.JLox2
             {
                 this.environment = environment;
 
-                foreach(var statement in statements)
+                foreach (var statement in statements)
                 {
                     execute(statement);
                 }
@@ -176,7 +265,7 @@ namespace CraftingInterpreters.JLox2
         private bool isTruthy(object obj)
         {
             if (obj == null) return false;
-            if(obj.GetType() == typeof(bool)) return (bool)obj;
+            if (obj.GetType() == typeof(bool)) return (bool)obj;
             return true;
         }
 
@@ -203,7 +292,7 @@ namespace CraftingInterpreters.JLox2
         {
             if (obj == null) return "nil";
 
-            if(obj.GetType() == typeof(double))
+            if (obj.GetType() == typeof(double))
             {
                 var text = obj.ToString();
                 if (text.EndsWith(".0"))
@@ -215,6 +304,5 @@ namespace CraftingInterpreters.JLox2
 
             return obj.ToString();
         }
-
     }
 }
