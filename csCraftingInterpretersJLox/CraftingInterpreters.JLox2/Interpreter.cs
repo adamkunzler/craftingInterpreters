@@ -151,13 +151,12 @@
                 arguments.Add(evaluate(argument));
             }
 
-            if (callee.GetType() != typeof(LoxCallable))
+            var function = callee as LoxCallable;
+            if (function is null)
             {
                 throw new RuntimeError(expr.paren, "Can only call functions and classes.");
             }
-
-            var function = (LoxCallable)callee;
-
+            
             if (arguments.Count != function.arity())
             {
                 throw new RuntimeError(expr.paren, $"Expected {function.arity()} arguments but got {arguments.Count}.");
