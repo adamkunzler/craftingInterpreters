@@ -204,8 +204,8 @@
             Console.WriteLine(stringify(val));
             return null; // return type should be void, but ran into issues
         }
-
-        public object visitReturnStatement(Stmt.Return stmt)
+        
+        public object visitReturnStmt(Stmt.Return stmt)
         {
             object value = null;
             if(stmt.value != null) value = evaluate(stmt.value);
@@ -318,11 +318,6 @@
             }
 
             return obj.ToString();
-        }
-
-        public object visitReturnStmt(Stmt.Return stmt)
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 }
